@@ -12,11 +12,15 @@ const Icon = () => {
 
 export interface DropdownProps {
     placeHolder: string;
+    onChange: (selection: string) => void;
 }
 
-export const WordingOptions = ({ placeHolder } : DropdownProps) => {
+export const WordingOptions = ({ placeHolder, onChange } : DropdownProps) => {
+    const options = Object.keys(service.Wording).filter((item) => {
+        return isNaN(Number(item));
+     });
     const [showMenu, setShowMenu] = React.useState(false);
-    const [selectedValue, setSelectedValue] = React.useState("");
+    const [selectedValue, setSelectedValue] = React.useState(options[0]);
     
     React.useEffect(() => {
           const handler = () => setShowMenu(false);
@@ -37,6 +41,7 @@ export const WordingOptions = ({ placeHolder } : DropdownProps) => {
 
     const handleSelectionEvent = (option: string) => {
         setSelectedValue(option);
+        onChange(option);
     }
 
   const getDisplay = () => {
@@ -45,10 +50,7 @@ export const WordingOptions = ({ placeHolder } : DropdownProps) => {
     }
     return placeHolder;
   };
- 
-  const options = Object.keys(service.Wording).filter((item) => {
-    return isNaN(Number(item));
- });
+
 
   return (
     <div className="dropdown-container">
