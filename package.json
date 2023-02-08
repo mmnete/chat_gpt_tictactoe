@@ -10,6 +10,7 @@
     "@types/node": "^16.18.12",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "analytics": "^0.8.1",
     "openai": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -21,7 +22,22 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "deploy-to-git",
+      "build-my-app": "a-build-script"
+  },
+  "config": {
+    "deployToGit": {
+        "repository": "git@github.com:mmnete/chat_gpt_tictactoe.git",
+        "branch": "artifacts",
+        "folder": "build",
+        "script": "npm run build-my-app",
+        "commit": "Automatic commit text",
+        "user": {
+            "email": "mnetemohamed@gmail.com",
+            "name": "Mohamed Mnete"
+        }
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -40,5 +56,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "deploy-to-git": "^0.4.1"
   }
 }

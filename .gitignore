@@ -5,9 +5,6 @@
 /.pnp
 .pnp.js
 
-# special files
-/src/controller/keys.tsx
-
 # testing
 /coverage
 
