@@ -1,4 +1,13 @@
+import { Configuration, OpenAIApi } from "openai";
+import * as keys from './keys';
 
+const configuration = new Configuration({
+  apiKey: keys.CHAT_GPT_KEY,
+});
+
+const openai = new OpenAIApi(configuration);
+
+const PROMPT_PRE_TEXT = 'You: May you please reword the follow text into ';
 
 const MINIMUM_TEXT_SIZE = 20;
 const MINIMUM_RESPONSE_SIZE = 10;
@@ -60,16 +69,27 @@ export function getWording (stringValue: string): Wording {
      }
 }
 
-export function makeRequest(textRequest: TextRequest): Promise<TextResponse> {
+export async function makeRequest(textRequest: TextRequest): Promise<TextResponse> {
     
     if (textRequest.text.length < MINIMUM_TEXT_SIZE) {
-        return Promise.resolve(TextResponse.createError(`Input text to small, please have atleast ${MINIMUM_TEXT_SIZE}`));
+        return Promise.resolve(TextResponse.createError(`Input text to small, please have atleast ${MINIMUM_TEXT_SIZE} characters`));
     }
 
     if (textRequest.responseLength < MINIMUM_RESPONSE_SIZE) {
-        return Promise.resolve(TextResponse.createError(`Response text length should be atleast ${MINIMUM_RESPONSE_SIZE}`)); 
+        return Promise.resolve(TextResponse.createError(`Response text length should be atleast ${MINIMUM_RESPONSE_SIZE}.`)); 
     }
 
-    return Promise.resolve(new TextResponse('Got it'));
+    const response = await openai.createCompletion({
+        model: "text-davinci-003",
+        prompt: PROMPT_PRE_TEXT + textRequest.wording + ' langauge in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:',
+        temperature: 0.5,
+        max_tokens: 60,
+        top_p: 1.0,
+        frequency_penalty: 0.5,
+        presence_penalty: 0.0,
+        stop: ["You:"],
+      });
+
+    return Promise.resolve(new TextResponse(JSON.stringify(response)));
 } 
 

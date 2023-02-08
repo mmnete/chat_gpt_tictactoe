@@ -8,6 +8,8 @@ function App() {
    var wording = '';
    var maxNumber = 0;
    var isFetching = false;
+   const [currError, setCurrError] = React.useState('');
+   const [outputText, setOutputText] = React.useState('');
 
    const getWording = (newWording: string) => {
     wording = newWording;
@@ -22,13 +24,27 @@ function App() {
    };
 
   const submitRequest = async () => {
+    setCurrError('');
     if (isFetching) {
       return;
     }
+
     isFetching = true;
 
     service.makeRequest(new service.TextRequest(service.getWording(wording), textInput, maxNumber)).then((
-      response: service.TextResponse) => {});
+      response: service.TextResponse) => {
+        if (response.status === service.RequestStatus.ERROR) {
+            setCurrError(response.errorText);
+        } else if (response.status === service.RequestStatus.SUCCESS) {
+          setOutputText(response.text);
+        } else {
+            setCurrError('There was some kind of problem with the server. May you try again or contact mnetemohamed@gmail.com');
+        }
+      });
+  };
+
+  const errorText = () => {
+        return currError;
   };
 
   const getSubmitButtonText = () => {
@@ -49,9 +65,9 @@ function App() {
       <span className="formTitle">Set a limit on the number of words to get back</span>
       <input className="maxTextSize" placeholder='Max length of response text...' type='number' onChange={getMaxTextSize}/>
       <button className="submit" onClick={submitRequest}>{getSubmitButtonText()}</button>
+      <div className="error">{errorText()}</div>
       <span className="formTitle">Your response will be displayed below</span>
-      <textarea className="textInput">
-      </textarea>
+      <textarea className="textInput" defaultValue={outputText} disabled={true}></textarea>
     </div>
   );
 }
