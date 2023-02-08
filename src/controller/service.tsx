@@ -9,6 +9,7 @@ const openai = new OpenAIApi(configuration);
 
 const PROMPT_PRE_TEXT = 'You: May you please reword the follow text into ';
 
+const MAXIMUM_TEXT_SIZE = 500;
 const MINIMUM_TEXT_SIZE = 20;
 const MINIMUM_RESPONSE_SIZE = 10;
 
@@ -72,16 +73,24 @@ export function getWording (stringValue: string): Wording {
 export async function makeRequest(textRequest: TextRequest): Promise<TextResponse> {
     
     if (textRequest.text.length < MINIMUM_TEXT_SIZE) {
-        return Promise.resolve(TextResponse.createError(`Input text to small, please have atleast ${MINIMUM_TEXT_SIZE} characters`));
+        return Promise.resolve(TextResponse.createError(`Input text too small, please have atleast ${MINIMUM_TEXT_SIZE} characters`));
+    }
+
+    if (textRequest.text.length > MAXIMUM_TEXT_SIZE) {
+        return Promise.resolve(TextResponse.createError(`Input text too large, please make it less than ${MAXIMUM_TEXT_SIZE} characters`));
     }
 
     if (textRequest.responseLength < MINIMUM_RESPONSE_SIZE) {
-        return Promise.resolve(TextResponse.createError(`Response text length should be atleast ${MINIMUM_RESPONSE_SIZE}.`)); 
+        return Promise.resolve(TextResponse.createError(`Response text length should be more than ${MINIMUM_RESPONSE_SIZE}.`)); 
+    }
+
+    if (textRequest.text.length < textRequest.responseLength) {
+        return Promise.resolve(TextResponse.createError(`Response text length should not be longer than the text entered. Please make it less than ${textRequest.text.length}.`)); 
     }
 
     const response = await openai.createCompletion({
         model: "text-davinci-003",
-        prompt: PROMPT_PRE_TEXT + textRequest.wording + ' langauge in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:',
+        prompt: PROMPT_PRE_TEXT + textRequest.wording.toString().toLowerCase() + ' phrasing in english in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:',
         temperature: 0.5,
         max_tokens: 60,
         top_p: 1.0,
@@ -90,6 +99,6 @@ export async function makeRequest(textRequest: TextRequest): Promise<TextRespons
         stop: ["You:"],
       });
 
-    return Promise.resolve(new TextResponse(JSON.stringify(response)));
+    return Promise.resolve(new TextResponse(response.data?.choices?.at(0)?.text || ''));
 } 
 
