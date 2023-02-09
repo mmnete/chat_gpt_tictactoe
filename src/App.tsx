@@ -61,9 +61,11 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        Rewrite any text using Faik's AI
+        Rewrite using my AI
       </header>
-      <span className='formSumary'>Welcome, thank you for using our tool. We use Chat GPT to help you rewrite any peace of text into any version you would like. Feel free to play around with the tool.</span>
+      <img src={require('./img/banner.jpg')} alt="Faik Dalan" className='bannerImage' />
+      <span className='formSumary'>Welcome and thank you for using my AI tool. This tool helps you rewrite any text to make it sound different. It is super fun!</span>
+      <span className='formSumary'>If you have any feedback please feel free to <a href="https://wa.link/aznvvs" target="_blank" rel="opener"><i>WhatsApp</i></a> me  &#128512;</span>
       <span className="formTitle">Enter the text to rewrite below</span>
       <textarea className="textInput" onChange={getTextInput} value={textInput}>
       </textarea>
