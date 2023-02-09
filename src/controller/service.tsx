@@ -49,6 +49,9 @@ export class TextResponse {
    static createError(newErrorText: string): TextResponse {
      var errorResponse = new TextResponse('');
      errorResponse.errorText = newErrorText;
+     if (newErrorText.includes('429')) {
+        errorResponse.errorText = 'Please wait and try again later. Server Error (Due to many requests): ' + errorResponse.errorText; 
+     }
      errorResponse.status = RequestStatus.ERROR;
      return errorResponse;
    }

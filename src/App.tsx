@@ -38,7 +38,7 @@ function App() {
     service.makeRequest(new service.TextRequest(service.getWording(wording), textInput.trim(), maxNumber)).then((
       response: service.TextResponse) => {
         if (response.status === service.RequestStatus.ERROR) {
-            setCurrError(response.errorText);
+            setCurrError(JSON.stringify(response.errorText));
         } else if (response.status === service.RequestStatus.SUCCESS) {
           setOutputText(response.text);
         } else {
