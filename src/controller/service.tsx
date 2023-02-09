@@ -1,16 +1,14 @@
-import { Configuration, OpenAIApi } from "openai";
-
-const configuration = new Configuration({
-  apiKey: process.env.REACT_APP_GPT_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
-
 const PROMPT_PRE_TEXT = 'You: May you please reword the follow text into ';
 
 const MAXIMUM_TEXT_SIZE = 500;
 const MINIMUM_TEXT_SIZE = 20;
 const MINIMUM_RESPONSE_SIZE = 10;
+
+interface BackEndResponse {
+    status: string;
+    text: string;
+    error: string;
+}
 
 export enum Wording {
    SIMPLE,
@@ -87,19 +85,27 @@ export async function makeRequest(textRequest: TextRequest): Promise<TextRespons
         return Promise.resolve(TextResponse.createError(`Response text length should not be longer than the text entered. Please make it less than ${textRequest.text.length}.`)); 
     }
 
-    await openai.createCompletion({
-        model: "text-davinci-003",
-        prompt: PROMPT_PRE_TEXT + textRequest.wording.toString().toLowerCase() + ' phrasing in english in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:',
-        temperature: 0.5,
-        max_tokens: 60,
-        top_p: 1.0,
-        frequency_penalty: 0.5,
-        presence_penalty: 0.0,
-        stop: ["You:"],
-      })
-      .then((response) => { return Promise.resolve(new TextResponse(response.data?.choices?.at(0)?.text || ''));})
-      .catch((err) => { return Promise.resolve(TextResponse.createError(err));});
+    var textResponse = new TextResponse('');
 
-      return Promise.resolve(new TextResponse(''));
+    await fetch('https://faik-gpt-backedn.onrender.com/rewrite', {
+        method: 'POST',
+        body: JSON.stringify({
+          inputText: PROMPT_PRE_TEXT + textRequest.wording.toString().toLowerCase() + ' phrasing in english in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:'
+        }),
+        headers: {'Content-Type':'application/json'},
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        const backedResponse = responseJson as BackEndResponse;
+        if (backedResponse.status === 'ERROR') {
+            textResponse = TextResponse.createError(backedResponse.error);
+        } else {
+            textResponse = new TextResponse(backedResponse.text);
+        }
+       })
+      .catch((err) => {
+        textResponse = TextResponse.createError(err);});
+
+    return Promise.resolve(textResponse);
 } 
 

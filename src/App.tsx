@@ -4,8 +4,8 @@ import * as service from './controller/service';
 import './App.css';
 
 function App() {
-   var wording = '';
-   var maxNumber = 0;
+   const [wording, setWording] = React.useState('');
+   const [maxNumber, setMaxNumber] = React.useState(0);
    const [charCount, setCharCount] = React.useState(0);
    const [isFetching, setIsFetching] = React.useState(false);
    const [textInput, setTextInput] = React.useState('');
@@ -13,7 +13,7 @@ function App() {
    const [outputText, setOutputText] = React.useState('');
 
    const getWording = (newWording: string) => {
-    wording = newWording;
+    setWording(newWording);
    };
 
   const getTextInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -23,7 +23,8 @@ function App() {
    };
 
   const getMaxTextSize = (event: React.ChangeEvent<HTMLInputElement>) => {
-     maxNumber = parseInt(event.target.value);
+     const newMaxNumber = parseInt(event.target.value);
+     setMaxNumber(newMaxNumber);
    };
 
   const submitRequest = async () => {
