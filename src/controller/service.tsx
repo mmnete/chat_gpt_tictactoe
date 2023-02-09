@@ -11,6 +11,11 @@ interface BackEndResponse {
 }
 
 export enum Wording {
+   GANGSTA,
+   SOUTHERN,
+   ARABIC,
+   SPANISH,
+   SWAHILI,
    SIMPLE,
    SHAKESPEAREAN,
    STREET,
