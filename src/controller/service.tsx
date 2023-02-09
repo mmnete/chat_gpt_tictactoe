@@ -1,8 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
-import * as keys from './keys';
 
 const configuration = new Configuration({
-  apiKey: keys.CHAT_GPT_KEY,
+  apiKey: process.env.REACT_APP_GPT_KEY,
 });
 
 const openai = new OpenAIApi(configuration);

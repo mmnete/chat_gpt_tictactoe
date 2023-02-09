@@ -1,1 +1,0 @@
-export const CHAT_GPT_KEY = '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';
