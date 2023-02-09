@@ -41,8 +41,11 @@ function App() {
         } else if (response.status === service.RequestStatus.SUCCESS) {
           setOutputText(response.text);
         } else {
-            setCurrError('There was some kind of problem with the server. May you try again or contact mnetemohamed@gmail.com');
+          setCurrError('There was some kind of problem with the server. May you try again or contact mnetemohamed@gmail.com');
         }
+        setIsFetching(false);
+      }).catch((err) => { 
+        setCurrError('99: Server error please try again later.');
         setIsFetching(false);
       });
   };
@@ -58,7 +61,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        Rewrite your text using Chat GPT
+        Rewrite any text using Faik's AI
       </header>
       <span className='formSumary'>Welcome, thank you for using our tool. We use Chat GPT to help you rewrite any peace of text into any version you would like. Feel free to play around with the tool.</span>
       <span className="formTitle">Enter the text to rewrite below</span>
@@ -73,7 +76,8 @@ function App() {
       <div className="error">{errorText()}</div>
       <span className="formTitle">Your response will be displayed below</span>
       <textarea className="textInput" defaultValue={outputText} disabled={true}></textarea>
-      <span className='mastHead'>Developed with love by <a href="https://www.linkedin.com/in/mmnete" target="_blank"><i>Mohamed Mnete</i></a></span>
+      <span className='mastHead'>Product of <a href="https://www.linkedin.com/in/faikdalan/" target="_blank" rel="opener"><i>Faik Dalan</i></a></span>
+      <span className='mastHead'>Designed and coded with love by <a href="https://www.linkedin.com/in/mmnete" target="_blank" rel="opener"><i>Mohamed Mnete</i></a></span>
     </div>
   );
 }

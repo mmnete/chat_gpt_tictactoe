@@ -4,8 +4,6 @@ const configuration = new Configuration({
   apiKey: process.env.REACT_APP_GPT_KEY,
 });
 
-const openai = new OpenAIApi(configuration);
-
 const PROMPT_PRE_TEXT = 'You: May you please reword the follow text into ';
 
 const MAXIMUM_TEXT_SIZE = 500;
@@ -87,7 +85,9 @@ export async function makeRequest(textRequest: TextRequest): Promise<TextRespons
         return Promise.resolve(TextResponse.createError(`Response text length should not be longer than the text entered. Please make it less than ${textRequest.text.length}.`)); 
     }
 
-    const response = await openai.createCompletion({
+    const openai = new OpenAIApi(configuration);
+
+    await openai.createCompletion({
         model: "text-davinci-003",
         prompt: PROMPT_PRE_TEXT + textRequest.wording.toString().toLowerCase() + ' phrasing in english in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:',
         temperature: 0.5,
@@ -96,8 +96,10 @@ export async function makeRequest(textRequest: TextRequest): Promise<TextRespons
         frequency_penalty: 0.5,
         presence_penalty: 0.0,
         stop: ["You:"],
-      });
+      })
+      .then((response) => { return Promise.resolve(new TextResponse(response.data?.choices?.at(0)?.text || ''));})
+      .catch((err) => { return Promise.resolve(TextResponse.createError(err));});
 
-    return Promise.resolve(new TextResponse(response.data?.choices?.at(0)?.text || ''));
+      return Promise.resolve(new TextResponse(''));
 } 
 
