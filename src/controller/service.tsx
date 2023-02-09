@@ -70,6 +70,18 @@ export function getWording (stringValue: string): Wording {
             return Wording.COMPLICATED;
         case Wording.SHAKESPEAREAN.toString():
             return Wording.SHAKESPEAREAN;
+        case Wording.GANGSTA.toString():
+            return Wording.GANGSTA;
+        case Wording.SOUTHERN.toString():
+            return Wording.SOUTHERN;
+        case Wording.ARABIC.toString():
+            return Wording.ARABIC;
+        case Wording.SPANISH.toString():
+            return Wording.SPANISH;
+        case Wording.SWAHILI.toString():
+            return Wording.SWAHILI;
+        case Wording.TEACHING.toString():
+            return Wording.TEACHING;
         default:
             return Wording.STREET;
      }
