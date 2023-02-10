@@ -1,8 +1,5 @@
-const PROMPT_PRE_TEXT = 'You: May you please reword the follow text into ';
-
-const MAXIMUM_TEXT_SIZE = 500;
-const MINIMUM_TEXT_SIZE = 20;
-const MINIMUM_RESPONSE_SIZE = 10;
+export const MAXIMUM_TEXT_SIZE = 10000;
+export const MINIMUM_TEXT_SIZE = 20;
 
 interface BackEndResponse {
     status: string;
@@ -10,18 +7,25 @@ interface BackEndResponse {
     error: string;
 }
 
-export enum Wording {
-   GANGSTA,
-   SOUTHERN,
-   ARABIC,
-   SPANISH,
-   SWAHILI,
-   SIMPLE,
-   SHAKESPEAREAN,
-   STREET,
-   TEACHING,
-   COMPLICATED,
+function generatePrompt(wording: string, inputText: string, limit: number): string {
+    inputText = inputText.replace(/(?:\r\n|\r|\n)/g, ' ');
+    if (limit === -1) {
+        return `Please reword the phrase into ${wording} - ${inputText}.`;  
+    }
+    return `Please reword the phrase into ${wording} in less than ${limit} characters - ${inputText}.`;
 }
+
+export const wordings = [
+   'british gangsta slang',
+   'shakespearen english',
+   'swahili language',
+   'arabic language',
+   'spanish language',
+   'irish accent',
+   'complicated english',
+   'lawyer language',
+   'american gangsta slang'
+];
 
 export enum RequestStatus {
     SUCCESS,
@@ -30,11 +34,11 @@ export enum RequestStatus {
  }
 
 export class TextRequest {
-     wording: Wording;
+     wording: string;
      text: string;
      responseLength: number;
 
-     constructor(wording: Wording, text: string, responseLength: number) {
+     constructor(wording: string, text: string, responseLength: number) {
         this.text = text;
         this.wording = wording;
         this.responseLength = responseLength;
@@ -62,31 +66,6 @@ export class TextResponse {
    }
 }
 
-export function getWording (stringValue: string): Wording {
-     switch (stringValue) {
-        case Wording.SIMPLE.toString():
-            return Wording.SIMPLE;
-        case Wording.COMPLICATED.toString():
-            return Wording.COMPLICATED;
-        case Wording.SHAKESPEAREAN.toString():
-            return Wording.SHAKESPEAREAN;
-        case Wording.GANGSTA.toString():
-            return Wording.GANGSTA;
-        case Wording.SOUTHERN.toString():
-            return Wording.SOUTHERN;
-        case Wording.ARABIC.toString():
-            return Wording.ARABIC;
-        case Wording.SPANISH.toString():
-            return Wording.SPANISH;
-        case Wording.SWAHILI.toString():
-            return Wording.SWAHILI;
-        case Wording.TEACHING.toString():
-            return Wording.TEACHING;
-        default:
-            return Wording.STREET;
-     }
-}
-
 export async function makeRequest(textRequest: TextRequest): Promise<TextResponse> {
     
     if (textRequest.text.length < MINIMUM_TEXT_SIZE) {
@@ -97,20 +76,24 @@ export async function makeRequest(textRequest: TextRequest): Promise<TextRespons
         return Promise.resolve(TextResponse.createError(`Input text too large, please make it less than ${MAXIMUM_TEXT_SIZE} characters`));
     }
 
-    if (textRequest.responseLength < MINIMUM_RESPONSE_SIZE) {
-        return Promise.resolve(TextResponse.createError(`Response text length should be more than ${MINIMUM_RESPONSE_SIZE}.`)); 
+    if (textRequest.responseLength !== -1 && textRequest.text.length < textRequest.responseLength) {
+        return Promise.resolve(TextResponse.createError(`Response text length should not be longer than the text entered. Please make it less than ${textRequest.text.length}.`)); 
     }
 
-    if (textRequest.text.length < textRequest.responseLength) {
-        return Promise.resolve(TextResponse.createError(`Response text length should not be longer than the text entered. Please make it less than ${textRequest.text.length}.`)); 
+    if (textRequest.responseLength !== -1 && (textRequest.responseLength < MINIMUM_TEXT_SIZE || textRequest.responseLength > MAXIMUM_TEXT_SIZE) ) {
+        return Promise.resolve(TextResponse.createError(`Rewording length should be between ${MINIMUM_TEXT_SIZE} and ${MAXIMUM_TEXT_SIZE} characters.`)); 
     }
 
     var textResponse = new TextResponse('');
 
-    await fetch('https://faik-gpt-backedn.onrender.com/rewrite', {
+    const inDev = false;
+
+    const backend =  inDev ? 'http://localhost:4000/rewrite' : 'https://faik-gpt-backedn.onrender.com/rewrite';
+
+    await fetch(backend, {
         method: 'POST',
         body: JSON.stringify({
-          inputText: PROMPT_PRE_TEXT + textRequest.wording.toString().toLowerCase() + ' phrasing in english in ' + textRequest.responseLength.toString() + ' characters - ' + textRequest.text + '\nFriend:'
+          inputText: generatePrompt(textRequest.wording, textRequest.text, textRequest.responseLength)
         }),
         headers: {'Content-Type':'application/json'},
       })

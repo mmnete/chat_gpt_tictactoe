@@ -4,8 +4,9 @@ import * as service from './controller/service';
 import './App.css';
 
 function App() {
+   const [useMaxResponse, setUseMaxResponse] = React.useState(false);
    const [wording, setWording] = React.useState('');
-   const [maxNumber, setMaxNumber] = React.useState(0);
+   const [maxNumber, setMaxNumber] = React.useState(25);
    const [charCount, setCharCount] = React.useState(0);
    const [isFetching, setIsFetching] = React.useState(false);
    const [textInput, setTextInput] = React.useState('');
@@ -35,7 +36,11 @@ function App() {
 
     setIsFetching(true);
 
-    service.makeRequest(new service.TextRequest(service.getWording(wording), textInput.trim(), maxNumber)).then((
+    if (!useMaxResponse) {
+      setMaxNumber(-1);
+    }
+
+    service.makeRequest(new service.TextRequest(wording, textInput.trim(), maxNumber)).then((
       response: service.TextResponse) => {
         if (response.status === service.RequestStatus.ERROR) {
             setCurrError(JSON.stringify(response.errorText));
@@ -52,11 +57,15 @@ function App() {
   };
 
   const errorText = () => {
-        return currError;
+        return currError.replaceAll('"', '');;
   };
 
   const getSubmitButtonText = () => {
     return isFetching ? 'Loading' : 'Submit';
+  };
+
+  const applyUseResponseLimit = () => {
+    setUseMaxResponse(!useMaxResponse);
   };
 
   return (
@@ -67,14 +76,18 @@ function App() {
       <img src={require('./img/banner.jpg')} alt="Faik Dalan" className='bannerImage' />
       <span className='formSumary'>Welcome and thank you for using my AI tool. This tool helps you rewrite any text to make it sound different. It is super fun!</span>
       <span className='formSumary'>If you have any feedback please feel free to <a href="https://wa.link/aznvvs" target="_blank" rel="opener"><i>WhatsApp</i></a> me  &#128512;</span>
-      <span className="formTitle">Enter the text to rewrite below</span>
+      <span className="formTitle">Enter the text to rewrite below *</span>
       <textarea className="textInput" onChange={getTextInput} value={textInput}>
       </textarea>
-      <span className="charCount">{charCount} characters entered.</span>
-      <span className="formTitle">How would you like to GPT to reword your text</span><br/>
+      <span className="charCount">{charCount} characters entered. Limit {service.MAXIMUM_TEXT_SIZE}</span>
+      <span className="formTitle">How would you like to GPT to reword your text *</span><br/>
       <WordingOptions.WordingOptions placeHolder="Select..." onChange={getWording} />
       <span className="formTitle">Set a limit on the number of words to get back</span>
-      <input className="maxTextSize" placeholder='Max length of response text...' type='number' onChange={getMaxTextSize}/>
+      <div className='applyResponseLimit'>
+      <input type="checkbox" id="applyResponseLimit" name="applyResponseLimit" onChange={applyUseResponseLimit} />
+      <label htmlFor="applyResponseLimit">Apply response limit (Optional).</label>
+      </div>
+      <input className={ useMaxResponse ? 'maxTextSize' : 'maxTextSize disabledInput' } placeholder='Max length of response text...' type='number' onChange={getMaxTextSize} defaultValue={maxNumber} disabled={useMaxResponse ? false : true}/>
       <button className="submit" onClick={submitRequest}>{getSubmitButtonText()}</button>
       <div className="error">{errorText()}</div>
       <span className="formTitle">Your response will be displayed below</span>

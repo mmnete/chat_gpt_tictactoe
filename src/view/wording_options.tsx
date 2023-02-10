@@ -16,9 +16,7 @@ export interface DropdownProps {
 }
 
 export const WordingOptions = ({ placeHolder, onChange } : DropdownProps) => {
-    const options = Object.keys(service.Wording).filter((item) => {
-        return isNaN(Number(item));
-     });
+    const options = service.wordings;
     const [showMenu, setShowMenu] = React.useState(false);
     const [selectedValue, setSelectedValue] = React.useState(options[0]);
     
